@@ -18,7 +18,7 @@ describe('SyncLog (e2e)', () => {
     await request(app.getHttpServer())
       .post('/hcm/test/set-balance')
       .send({ employeeId: 'emp-10', balanceDays: 20 });
-    
+
     await request(app.getHttpServer())
       .post('/hcm/test/set-balance')
       .send({ employeeId: 'emp-11', balanceDays: 30 });
@@ -30,14 +30,10 @@ describe('SyncLog (e2e)', () => {
 
   it('should sync balances from mock HCM to local DB', async () => {
     // Check initial balance doesn't exist
-    await request(app.getHttpServer())
-      .get('/balances/emp-11')
-      .expect(404);
+    await request(app.getHttpServer()).get('/balances/emp-11').expect(404);
 
     // Trigger sync
-    await request(app.getHttpServer())
-      .post('/sync/trigger')
-      .expect(200);
+    await request(app.getHttpServer()).post('/sync/trigger').expect(200);
 
     // Verify balance was synced
     const res = await request(app.getHttpServer())

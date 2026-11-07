@@ -12,11 +12,13 @@ describe('TimeOffRequest Edge Cases (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }));
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
     await app.init();
 
     // Setup initial data in mock HCM
@@ -45,7 +47,7 @@ describe('TimeOffRequest Edge Cases (e2e)', () => {
           requestedDays: 5,
         })
         .expect(400);
-      
+
       expect(res.body.message).toContain('employeeId should not be empty');
     });
 
@@ -59,8 +61,10 @@ describe('TimeOffRequest Edge Cases (e2e)', () => {
           requestedDays: 0.1,
         })
         .expect(400);
-      
-      expect(res.body.message).toContain('requestedDays must not be less than 0.5');
+
+      expect(res.body.message).toContain(
+        'requestedDays must not be less than 0.5',
+      );
     });
 
     it('should fail with invalid date format', async () => {
@@ -86,8 +90,10 @@ describe('TimeOffRequest Edge Cases (e2e)', () => {
           maliciousField: 'exploit',
         })
         .expect(400);
-      
-      expect(res.body.message).toContain('property maliciousField should not exist');
+
+      expect(res.body.message).toContain(
+        'property maliciousField should not exist',
+      );
     });
 
     it('should fail when requestedDays is negative', async () => {
@@ -114,7 +120,7 @@ describe('TimeOffRequest Edge Cases (e2e)', () => {
           requestedDays: 1,
         })
         .expect(201);
-      
+
       expect(res.body.status).toBe('REJECTED');
       expect(res.body.rejectionReason).toBe('Employee not found in HCM');
     });
@@ -129,7 +135,7 @@ describe('TimeOffRequest Edge Cases (e2e)', () => {
           requestedDays: 0.5,
         })
         .expect(201);
-      
+
       expect(res.body.status).toBe('APPROVED');
       expect(res.body.requestedDays).toBe(0.5);
 
@@ -150,9 +156,9 @@ describe('TimeOffRequest Edge Cases (e2e)', () => {
           requestedDays: 10,
         })
         .expect(201);
-      
+
       expect(res.body.status).toBe('APPROVED');
-      
+
       const balanceRes = await request(app.getHttpServer())
         .get('/balances/emp-edge')
         .expect(200);
@@ -168,9 +174,7 @@ describe('TimeOffRequest Edge Cases (e2e)', () => {
         .send({ fail: true });
 
       // Trigger sync
-      await request(app.getHttpServer())
-        .post('/sync/trigger')
-        .expect(200);
+      await request(app.getHttpServer()).post('/sync/trigger').expect(200);
 
       // Verify the log shows failure
       // We don't have a GET /sync/logs endpoint yet, but we can verify balances didn't change
@@ -178,4 +182,3 @@ describe('TimeOffRequest Edge Cases (e2e)', () => {
     });
   });
 });
-

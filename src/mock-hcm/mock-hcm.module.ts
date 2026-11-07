@@ -5,6 +5,6 @@ import { MockHcmController } from './mock-hcm.controller';
 @Module({
   providers: [MockHcmService],
   controllers: [MockHcmController],
-  exports: [MockHcmService]
+  exports: [MockHcmService],
 })
 export class MockHcmModule {}

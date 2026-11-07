@@ -9,11 +9,10 @@ export class TimeOffRequestController {
   constructor(private readonly requestService: TimeOffRequestService) {}
 
   @Post()
-  async createRequest(
-    @Body() dto: CreateTimeOffRequestDto,
-    @Ip() ip: string,
-  ) {
-    this.logger.log(`Received time-off request for employee ${dto.employeeId} from IP ${ip}`);
+  async createRequest(@Body() dto: CreateTimeOffRequestDto, @Ip() ip: string) {
+    this.logger.log(
+      `Received time-off request for employee ${dto.employeeId} from IP ${ip}`,
+    );
     return this.requestService.submitRequest(
       dto.employeeId,
       new Date(dto.startDate),

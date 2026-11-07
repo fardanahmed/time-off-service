@@ -8,12 +8,12 @@ export class TimeOffBalanceController {
   constructor(private readonly balanceService: TimeOffBalanceService) {}
 
   @Get(':employeeId')
-  async getBalance(
-    @Param('employeeId') employeeId: string,
-    @Ip() ip: string,
-  ) {
-    this.logger.log(`AUDIT: Data access - balance for employee ${employeeId} by IP ${ip}`);
-    const balanceEntity = await this.balanceService.getBalanceByEmployeeId(employeeId);
+  async getBalance(@Param('employeeId') employeeId: string, @Ip() ip: string) {
+    this.logger.log(
+      `AUDIT: Data access - balance for employee ${employeeId} by IP ${ip}`,
+    );
+    const balanceEntity =
+      await this.balanceService.getBalanceByEmployeeId(employeeId);
     return {
       employeeId: balanceEntity.employeeId,
       locationId: balanceEntity.locationId,
@@ -27,8 +27,14 @@ export class TimeOffBalanceController {
     @Body() body: { employeeId: string; locationId: string; balance: number },
     @Ip() ip: string,
   ) {
-    this.logger.log(`AUDIT: Balance update for employee ${body.employeeId} by IP ${ip}`);
-    const balanceEntity = await this.balanceService.setBalance(body.employeeId, body.locationId, body.balance);
+    this.logger.log(
+      `AUDIT: Balance update for employee ${body.employeeId} by IP ${ip}`,
+    );
+    const balanceEntity = await this.balanceService.setBalance(
+      body.employeeId,
+      body.locationId,
+      body.balance,
+    );
     return {
       employeeId: balanceEntity.employeeId,
       locationId: balanceEntity.locationId,

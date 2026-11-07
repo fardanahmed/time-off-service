@@ -19,7 +19,10 @@ export class MockHcmController {
   @Post('timeoff')
   @HttpCode(200)
   processTimeOff(@Body() body: { employeeId: string; requestedDays: number }) {
-    return this.mockHcmService.processTimeOff(body.employeeId, body.requestedDays);
+    return this.mockHcmService.processTimeOff(
+      body.employeeId,
+      body.requestedDays,
+    );
   }
 
   // --- Testing endpoints ---
@@ -34,6 +37,10 @@ export class MockHcmController {
   @HttpCode(200)
   setBalance(@Body() body: { employeeId: string; balanceDays: number }) {
     this.mockHcmService.setBalance(body.employeeId, body.balanceDays);
-    return { status: 'ok', employeeId: body.employeeId, balanceDays: body.balanceDays };
+    return {
+      status: 'ok',
+      employeeId: body.employeeId,
+      balanceDays: body.balanceDays,
+    };
   }
 }

@@ -47,7 +47,7 @@ describe('TimeOffRequest (e2e)', () => {
     const balanceRes = await request(app.getHttpServer())
       .get('/balances/emp-10')
       .expect(200);
-    
+
     expect(balanceRes.body.balance).toBe(15);
   });
 
@@ -69,7 +69,7 @@ describe('TimeOffRequest (e2e)', () => {
     const balanceRes = await request(app.getHttpServer())
       .get('/balances/emp-10')
       .expect(200);
-    
+
     expect(balanceRes.body.balance).toBe(20);
   });
 
@@ -95,7 +95,7 @@ describe('TimeOffRequest (e2e)', () => {
     const balanceRes = await request(app.getHttpServer())
       .get('/balances/emp-10')
       .expect(200);
-    
+
     expect(balanceRes.body.balance).toBe(20);
   });
 });

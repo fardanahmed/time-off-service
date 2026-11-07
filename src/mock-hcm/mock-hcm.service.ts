@@ -31,19 +31,31 @@ export class MockHcmService {
   getBalance(employeeId: string): number {
     if (this.failNextRequest) {
       this.failNextRequest = false;
-      throw new HttpException('HCM Unavailable', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'HCM Unavailable',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
     const balance = this.balances.get(employeeId);
     if (balance === undefined) {
-      throw new HttpException('Employee not found in HCM', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Employee not found in HCM',
+        HttpStatus.NOT_FOUND,
+      );
     }
     return balance;
   }
 
-  processTimeOff(employeeId: string, requestedDays: number): { success: boolean; reason?: string } {
+  processTimeOff(
+    employeeId: string,
+    requestedDays: number,
+  ): { success: boolean; reason?: string } {
     if (this.failNextRequest) {
       this.failNextRequest = false;
-      throw new HttpException('HCM Unavailable', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'HCM Unavailable',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
     const currentBalance = this.balances.get(employeeId);

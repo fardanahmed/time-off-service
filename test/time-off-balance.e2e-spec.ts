@@ -20,9 +20,7 @@ describe('TimeOffBalance (e2e)', () => {
   });
 
   it('should return 404 for non-existent employee balance', () => {
-    return request(app.getHttpServer())
-      .get('/balances/emp-999')
-      .expect(404);
+    return request(app.getHttpServer()).get('/balances/emp-999').expect(404);
   });
 
   it('should create and return balance for a new employee', async () => {

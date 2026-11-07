@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsDateString, IsNumber, Min } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsDateString,
+  IsNumber,
+  Min,
+} from 'class-validator';
 
 export class CreateTimeOffRequestDto {
   @IsString()

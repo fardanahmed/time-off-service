@@ -20,7 +20,9 @@ export class SyncLogService {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleNightlySync() {
     this.logger.log('Starting nightly batch sync with HCM...');
-    let syncLog = this.syncLogRepository.create({ status: SyncStatus.IN_PROGRESS });
+    let syncLog = this.syncLogRepository.create({
+      status: SyncStatus.IN_PROGRESS,
+    });
     syncLog = await this.syncLogRepository.save(syncLog);
 
     try {
@@ -29,7 +31,11 @@ export class SyncLogService {
 
       for (const record of batchData) {
         // Location id is not provided in mock batch, assuming a default or keeping existing
-        await this.timeOffBalanceService.setBalance(record.employeeId, 'loc-1', record.balanceDays);
+        await this.timeOffBalanceService.setBalance(
+          record.employeeId,
+          'loc-1',
+          record.balanceDays,
+        );
         processedCount++;
       }
 
@@ -40,7 +46,8 @@ export class SyncLogService {
     } catch (error) {
       this.logger.error('Nightly batch sync failed', error);
       syncLog.status = SyncStatus.FAILED;
-      syncLog.details = error instanceof Error ? error.message : 'Unknown error';
+      syncLog.details =
+        error instanceof Error ? error.message : 'Unknown error';
       await this.syncLogRepository.save(syncLog);
     }
   }

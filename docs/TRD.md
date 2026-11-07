@@ -66,7 +66,7 @@ To facilitate testing, a separate module within the NestJS application will act 
 
 ## Security & Compliance
 
-The microservice implements several features to ensure data integrity and security, drawing inspiration from HIPAA-compliant patterns:
+The microservice implements several features to ensure data integrity and security, following common audit and validation practice:
 
 1. **Audit Logging**: Every state transition in a time-off request (APPROVED, REJECTED, SYSTEM_ERROR) is logged with the requester's IP address, employee ID, and the specific outcome. Data access to sensitive balances is also logged.
 2. **Global Input Validation**: Using `class-validator` and `class-transformer`, all incoming requests are strictly validated against DTOs. The system is configured to strip non-whitelisted properties and reject requests with extra fields (`forbidNonWhitelisted: true`).

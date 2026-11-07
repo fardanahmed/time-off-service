@@ -1,71 +1,54 @@
 # Time-Off Microservice
 
-This is a robust, test-driven backend microservice built with **NestJS**, **TypeORM**, and **SQLite**. It serves to manage employee time-off requests while maintaining strict synchronization with an external Human Capital Management (HCM) system. 
+A small NestJS service that manages employee time-off requests while an external Human Capital Management (HCM) system stays the source of truth for balances. Built in May 2026 for a backend take-home assignment; the assignment is summarised in [docs/ASSIGNMENT.md](docs/ASSIGNMENT.md) and the design in [docs/TRD.md](docs/TRD.md).
 
-It handles real-time validations against the HCM and includes a nightly batch synchronization process to ensure the local database remains a highly accurate, resilient cache of the HCM "Source of Truth".
+Stack: NestJS 11, TypeORM, SQLite, `@nestjs/schedule`, `class-validator`, Jest and Supertest.
 
-## Architecture Overview
-Please read the Technical Requirements Document (`docs/TRD.md`) for a complete breakdown of the architecture, state machine, and the reasoning behind "Alternatives Considered".
+## What it does
 
-## Prerequisites
-- Node.js (v18 or higher recommended)
-- npm (v9 or higher recommended)
+- **Request lifecycle as a state machine.** A request is saved as `PENDING`, validated synchronously against the HCM, and ends as `APPROVED` (local balance reduced), `REJECTED` (reason stored) or `SYSTEM_ERROR` (HCM unreachable or returned an error). The employee gets the outcome in the same HTTP response.
+- **Nightly sync.** A scheduled job pulls the whole balance corpus from the HCM batch endpoint so independent changes (anniversary bonus, yearly refresh) land in the local cache. `POST /sync/trigger` runs it on demand; every run is recorded in a sync log.
+- **Defensive by default.** HCM errors are not trusted to be complete, so the service validates input itself (`ValidationPipe` with `whitelist` and `forbidNonWhitelisted`), stores the failure state instead of guessing, and returns sanitised errors to the client.
+- **Audit lines.** Request outcomes and balance reads are logged with the caller IP and employee id.
+- **Mock HCM in-process.** A `MockHcmService` and controller stand in for the real HCM so the e2e suite can set balances and inject failures.
 
-## Installation
+## Endpoints
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/balances/:employeeId` | Local balance for an employee |
+| `POST` | `/balances` | Create a local balance record |
+| `POST` | `/requests` | Submit a time-off request (`employeeId`, `startDate`, `endDate`, `requestedDays` with a 0.5-day minimum) |
+| `POST` | `/sync/trigger` | Run the HCM batch sync now |
+| `GET` | `/hcm/batch` | Mock HCM: whole balance corpus |
+| `GET` | `/hcm/balance/:employeeId` | Mock HCM: real-time balance |
+| `POST` | `/hcm/timeoff` | Mock HCM: book time off |
+| `POST` | `/hcm/test/set-balance` | Test control: set a mock balance |
+| `POST` | `/hcm/test/fail-next` | Test control: make the next HCM call fail |
+
+## Run it
 
 ```bash
-# Install dependencies
 npm install
+npm run start:dev      # http://localhost:3000, SQLite file timeoff.sqlite is created on first run
 ```
 
-## Running the app
+## Tests
 
 ```bash
-# development
-npm run start
-
-# watch mode
-npm run start:dev
-
-# production mode
-npm run start:prod
+npm test               # 7 unit tests
+npm run test:e2e       # 16 end-to-end tests, run in band because of SQLite locking
+npm run test:cov       # unit coverage report
 ```
 
-## Running the Test Suite (Agentic Rigor)
-A major focus of this project is the rigorous testing suite that validates integration with the Mock HCM server and guards against regressions.
+The e2e suite spins up the whole app with the mock HCM and drives it over HTTP: approval with balance deduction, rejection on insufficient balance, `SYSTEM_ERROR` when the HCM fails, nightly sync success and failure, balance 404 and creation, and validation edge cases (empty id, negative or sub-half-day amounts, bad dates, extra fields, half days, requesting exactly the remaining balance).
 
-**Sequential Testing:** Because this project uses SQLite, E2E tests run sequentially to prevent locking. The script is pre-configured with `--runInBand`.
+CI (`.github/workflows/ci.yml`) runs lint, build, unit and e2e tests on every push.
 
-```bash
-# Run unit tests
-npm run test
+## Out of scope
 
-# Run the E2E tests (Recommended for verification)
-npm run test:e2e
+No authentication (assumed to sit in front of the service), no manager approval routing, no UI. See the TRD for the alternatives that were considered and why they were not chosen.
 
-# Run with coverage report
-npm run test:cov
-```
+## License
 
-The test suite covers:
-- **Happy Path**: Successful request creation and balance deduction.
-- **Strict Validation**: Edge cases for empty IDs, negative requested days, and invalid date formats.
-- **Business Rejections**: Real-time rejection flow for insufficient balances in HCM.
-- **Resilience**: Transition to `SYSTEM_ERROR` during HCM downtime.
-- **Audit Logging**: Verification of IP attribution and audit-level logs for compliance.
-
-## Manual Verification
-The project includes a built-in **Mock HCM Controller** that allows you to manually manipulate the state for testing:
-
-1. **Trigger Sync**: `POST /sync/trigger`
-2. **View Balance**: `GET /balances/:employeeId`
-3. **Submit Request**: `POST /requests`
-4. **Mock HCM Controls**:
-   - Set Balance: `POST /hcm/test/set-balance`
-   - Inject Failure: `POST /hcm/test/fail-next` (Toggles 500 error for next request)
-
-## Compliance & Security
-- **Audit Logging**: All sensitive actions (accessing balances, submitting requests) are logged with IP attribution for auditability.
-- **Input Validation**: Global `ValidationPipe` with `whitelist` and `forbidNonWhitelisted` ensures only validated, secure payloads reach the service layer.
-- **No PHI Leaks**: Internal system errors are sanitized before being returned to the client.
-
+MIT, see [LICENSE](LICENSE).

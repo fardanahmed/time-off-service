@@ -1,6 +1,6 @@
 # Time-Off Microservice
 
-[![CI](https://github.com/OWNER/time-off-service/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/time-off-service/actions/workflows/ci.yml)
+[![CI](https://github.com/fardanahmed/time-off-service/actions/workflows/ci.yml/badge.svg)](https://github.com/fardanahmed/time-off-service/actions/workflows/ci.yml)
 
 A small NestJS service that manages employee time-off requests while an external Human Capital Management (HCM) system stays the source of truth for balances. Built in May 2026 for a backend take-home assignment; the assignment is summarised in [docs/ASSIGNMENT.md](docs/ASSIGNMENT.md), the design in [docs/TRD.md](docs/TRD.md) and the moving parts in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
